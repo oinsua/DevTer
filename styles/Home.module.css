@@ -4,6 +4,10 @@
   margin: 0
 }
 
+.head{
+  margin-top: 1rem;
+}
+
 .button{
   font-size: 1rem;
   background-color: black;
@@ -44,8 +48,21 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin-top: 1rem;
 }
 
+.img{
+  border-radius: 9999px;
+  width: 49px;
+  height: 49px;
+}
+
+.avatar{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .documentationcontainer{
   display: flex;
   flex-direction: column;
