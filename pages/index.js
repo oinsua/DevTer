@@ -1,44 +1,45 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import Link from 'next/link'
 import styles from '../styles/Home.module.css'
 import AppLayout from './component/AppLayout/AppLayout'
 import Button from './component/Button'
 import GitHub from './component/Icons/GitHub'
-import {loginGitHub, onAuthStateChange} from './../firebase/client'
-import {GithubAuthProvider } from "firebase/auth";
-import {useState, useEffect} from 'react'
+import { loginGitHub, onAuthStateChange } from './../firebase/client'
+import React, { useState, useEffect } from 'react'
+import Note from './component/Note'
 
-export default function Home() {
-  const [user, setUser] = useState(null);
+export default function Home ({ data }) {
+  const [user, setUser] = useState(null)
 
   useEffect(() => {
-    onAuthStateChange(user => setUser(user));
-  });
-  
+    onAuthStateChange(user => setUser(user))
+    console.log('data: ', data)
+  })
+
   const handleClick = () => {
     loginGitHub()
-            .then(res => {
-              // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-              const credential = GithubAuthProvider.credentialFromResult(res);
-              const token = credential.accessToken;
-              // The signed-in user info.
-              setUser(res.user);
-              const user = res.user;
-              console.log('res: ', res);
-              console.log('user: ', user);
-            })
-            .catch((error) => {
-              // Handle Errors here.
-              const errorCode = error.code;
-              const errorMessage = error.message;
-              // The email of the user's account used.
-              const email = error.email;
-              // The AuthCredential type that was used.
-              const credential = GithubAuthProvider.credentialFromError(error);
-              // ...
-            });
-  };
+      .then(res => {
+        // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+        // const credential = GithubAuthProvider.credentialFromResult(res)
+        // const token = credential.accessToken
+        // The signed-in user info.
+        setUser(res.user)
+        const user = res.user
+        console.log('res: ', res)
+        console.log('user: ', user)
+      })
+      .catch((error) => {
+        console.log(error)
+        // Handle Errors here.
+        // const errorCode = error.code
+        // const errorMessage = error.message
+        // The email of the user's account used.
+        // const email = error.email
+        // The AuthCredential type that was used.
+        // const credential = GithubAuthProvider.credentialFromError(error)
+        // ...
+      })
+  }
 
   return (
     <div className={styles.container}>
@@ -52,20 +53,24 @@ export default function Home() {
          <h1 className={styles.titleH1}>DevTer</h1>
          <h3 className={styles.titleH3}>Talk about development with developers</h3>
          {
-           user === null ? (
+           user === null && (
                                 <Button onClick={handleClick}>
                                     <GitHub width={24} height={24} fill={'#fff'} />
                                     <span className={styles.titleButton}>Login with GitHub</span>
                                  </Button>
-                              )
-                          :
-                          (
-                            <div>
-                              <h5>{user.email}</h5>
-                            </div>
-                          )
+           )
          }
-         
+         {
+           user && user.email && (
+                                    <div>
+                                      <h5>{user.email}</h5>
+                                    </div>
+           )
+         }
+         {
+           data.map(item => <Note key={item.id} note={item}/>)
+         }
+
       </AppLayout>
       <footer className={styles.footer}>
         <a
@@ -81,4 +86,18 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+export async function getStaticProps (context) {
+  const res = await fetch('https://jsonplaceholder.typicode.com/todos')
+  const data = await res.json()
+
+  if (!data) {
+    return {
+      notFound: true
+    }
+  }
+  return {
+    props: { data } // will be passed to the page component as props
+  }
 }
